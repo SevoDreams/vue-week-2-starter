@@ -1,4 +1,16 @@
 #records {
-    max-height: 250px;
-    overflow: scroll;
+  max-height: 250px;
+  overflow: scroll;
+}
+
+.sketching {
+  background-color: rgba(128, 128, 128, 0.746);
+}
+
+.painting {
+  background-color: rgb(251, 152, 152);
+}
+
+.drawing {
+  background-color: aqua;
 }

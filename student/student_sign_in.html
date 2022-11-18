@@ -1,73 +1,145 @@
 <!DOCTYPE html>
 <html>
-
-<head>
+  <head>
     <title>Student Sign In</title>
     <script src="https://unpkg.com/vue@next"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-        crossorigin="anonymous">
-    <link rel="stylesheet" href="styles.css" type="text/css">
-</head>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+  </head>
 
-<body>
-    <div id="app">
+  <body>
+    <div id="app" v-cloak>
+      <!-- TODO show errors from form validation -->
+      <div v-if="errors.length > 0" class="alert alert-danger">
+        <ul>
+          <li v-for="error in errors">{{error}}</li>
+        </ul>
+      </div>
 
+      <div class="card add-student m-2 p-2">
+        <h4 class="card-title">Add new student</h4>
 
-        <!-- TODO show errors from form validation -->
-
-
-        <div class="card add-student m-2 p-2">
-            <h4 class="card-title">Add new student</h4>
-
-            <div class="form-group">
-                <label for="name">Name</label>
-                <!-- TODO v-model newStudentName -->
-                <input id="name" class="form-control">
-            </div>
-            <div class="form-group">
-                <label for="starID">Star ID</label>
-                <!-- TODO v-model newStarID -->
-                <input id="starID" class="form-control">
-            </div>
-            <!-- TODO v-on:click event handler -->
-            <button class="btn btn-primary">Add</button>
+        <div class="form-group">
+          <label for="name">Name</label>
+          <!-- TODO v-model newStudentName -->
+          <input id="name" class="form-control" v-model.trim="newStudentName" />
         </div>
+        <div class="form-group">
+          <label for="starID">Star ID</label>
+          <!-- TODO v-model newStarID -->
+          <input id="starID" class="form-control" v-model.trim="newStarID" />
+        </div>
+        <!-- TODO v-on:click event handler -->
+        <button class="btn btn-primary" v-on:click="addStudent">Add</button>
+      </div>
 
-        <div class="card student-list m-2 p-2">
-            <h4 class="card-title">Student List</h4>
-            <div id="student-table">
-                <table class="table">
-                    <tr>
-                        <th>Name</th>
-                        <th>StarID</th>
-                        <th>Present?</th>
-                    </tr>
+      <div class="card student-list m-2 p-2">
+        <h4 class="card-title">Student List</h4>
+        <div id="student-table">
+          <table class="table">
+            <tr>
+              <th>Name</th>
+              <th>StarID</th>
+              <th>Present?</th>
+            </tr>
 
-                   <!-- TODO create table rows 
+            <!-- TODO create table rows 
                    Each row will have a checkbox, bound to the app's data 
                    When the checkbox is checked/unchecked, the student will be signed in/out -->
-
-                </table>
-            </div>
+            <tr
+              v-for="student in students"
+              v-bind:class="{present: student.present, absent: !student.present}"
+            >
+              <td>{{student.name}}</td>
+              <td>{{student.starID}}</td>
+              <td>
+                <input
+                  type="checkbox"
+                  v-model="student.present"
+                  v-on:change="arrivedOrLeft(student)"
+                />
+              </td>
+            </tr>
+          </table>
         </div>
+      </div>
 
+      <!-- TODO show a message when student arrives or leaves  -->
 
-        <!-- TODO show a message when student arrives or leaves  -->
-
-
+      <div v-if="mostRecentStudent.name">
+        <div
+          v-if="mostRecentStudent.present == true"
+          class="alert alert-success"
+        >
+          <p>Hello {{mostRecentStudent.name}} and welcome</p>
+        </div>
+        <div v-else class="alert alert-secondary">
+          <p>Bye {{mostRecentStudent.name}} and have a nice day</p>
+        </div>
+      </div>
     </div>
 
     <script>
+      let app = Vue.createApp({
+        data() {
+          return {
+            newStudentName: "",
+            newStarID: "",
+            students: [
+              { name: "A. Student", starID: "se777en", present: false },
+              { name: "B. Student", starID: "ei888ht", present: false },
+              { name: "C. Student", starID: "ni999ne", present: false },
+            ],
+            errors: [],
+            mostRecentStudent: {},
+          };
+        },
+        methods: {
+          addStudent() {
+            this.errors = [];
 
+            if (!this.newStudentName) {
+              this.errors.push("Student name required");
+            }
 
-        // TODO Vue app     
+            if (!this.newStarID) {
+              this.errors.push("StarID required");
+            }
 
+            if (this.errors.length == 0) {
+              this.students.push({
+                name: this.newStudentName,
+                starID: this.newStarID,
+                present: false,
+              });
+              this.newStudentName = "";
+              this.newStarID = "";
 
+              this.students.sort(function (s1, s2) {
+                // So that names are sorted despite capitalization
+                if (s1.name.toUpperCase() > s2.name.toUpperCase()) {
+                  return 1;
+                } else if (s1.name.toUpperCase() < s2.name.toUpperCase()) {
+                  return -1;
+                } else {
+                  return 0;
+                }
+              });
+            }
+          },
+          arrivedOrLeft(student) {
+            this.mostRecentStudent = student;
+          },
+        },
+      });
+      // TODO Vue app
+
+      app.mount("#app");
     </script>
-
-</body>
-
+  </body>
 </html>
-
-
-                
